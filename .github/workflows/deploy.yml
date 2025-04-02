@@ -28,6 +28,6 @@ jobs:
             pip install -r backend/requirements.txt
 
             sudo systemctl restart flask-app
-            sudo cp -r frontend/* /var/www/html/
+            sudo cp -r template/* /var/www/html/
 
             echo " Deployment successful!"
