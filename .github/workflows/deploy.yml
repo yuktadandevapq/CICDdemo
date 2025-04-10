@@ -22,9 +22,9 @@ jobs:
     - name: Deploy via SSH
       run: |
         ssh -o StrictHostKeyChecking=no ${{ secrets.AWS_USERNAME }}@${{ secrets.AWS_EC2_HOST }} << 'EOF'
-          cd /home/ubuntu/your-repo-folder
+          cd /home/ubuntu/CICDdemo
           git pull origin main
           pip3 install -r requirements.txt
-          # Flask run (if using screen, tmux, or gunicorn - update this accordingly)
+          pkill -f app.py || true
           nohup python3 app.py > out.log 2>&1 &
         EOF
