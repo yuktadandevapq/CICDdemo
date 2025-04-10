@@ -1,4 +1,4 @@
-name: testing ci cd
+name: Deploy Flask App
 
 on:
   push:
@@ -10,21 +10,22 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout repo
+    - name: Checkout Repository
       uses: actions/checkout@v3
 
-    - name: Set up SSH key
+    - name: Set up SSH Key
       run: |
         mkdir -p ~/.ssh
         echo "${{ secrets.AWS_SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
         chmod 600 ~/.ssh/id_rsa
+        ssh-keyscan -H ${{ secrets.AWS_EC2_HOST }} >> ~/.ssh/known_hosts
 
-    - name: Deploy via SSH
+    - name: Deploy Application
       run: |
-        ssh -o StrictHostKeyChecking=no ${{ secrets.AWS_USERNAME }}@${{ secrets.AWS_EC2_HOST }} << 'EOF'
-          cd /home/ubuntu/CICDdemo
+        ssh ${{ secrets.AWS_USERNAME }}@${{ secrets.AWS_EC2_HOST }} << 'EOF'
+          cd /home/ubuntu/your-repo-folder
           git pull origin main
-          pip3 install -r requirements.txt
-          pkill -f app.py || true
-          nohup python3 app.py > out.log 2>&1 &
+          source venv/bin/activate
+          pip install -r requirements.txt
+          sudo systemctl restart myflaskapp
         EOF
