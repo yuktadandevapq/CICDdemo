@@ -1,0 +1,30 @@
+name: testing ci cd
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repo
+      uses: actions/checkout@v3
+
+    - name: Set up SSH key
+      run: |
+        mkdir -p ~/.ssh
+        echo "${{ secrets.AWS_SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
+        chmod 600 ~/.ssh/id_rsa
+
+    - name: Deploy via SSH
+      run: |
+        ssh -o StrictHostKeyChecking=no ${{ secrets.AWS_USERNAME }}@${{ secrets.AWS_EC2_HOST }} << 'EOF'
+          cd /home/ubuntu/your-repo-folder
+          git pull origin main
+          pip3 install -r requirements.txt
+          # Flask run (if using screen, tmux, or gunicorn - update this accordingly)
+          nohup python3 app.py > out.log 2>&1 &
+        EOF
